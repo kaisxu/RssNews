@@ -25,7 +25,9 @@ namespace rssnews
 
         private static readonly Station[] stations =
         {
-            new Station(){ Name = "WSJ", Address="https://video-api.wsj.com/podcast/rss/wsj/the-journal"}
+            new Station(){ Name = "WSJ", Address="https://video-api.wsj.com/podcast/rss/wsj/the-journal"},
+
+            new Station(){ Name = "WSJ Tech", Address="https://video-api.wsj.com/podcast/rss/wsj/tech-news-briefing"}
         };
 
         [FunctionName("FeedService")]
@@ -39,7 +41,10 @@ namespace rssnews
             try
             {
                 // download new data
-                var eplist = (await ReadRss(stations[0].Address, log));
+                var eplist = stations
+                    .Select(s => ReadRss(s, log).GetAwaiter().GetResult())
+                    .Aggregate((a, b) => a.Concat(b))
+                    .OrderByDescending(e => e.PublishDate);
                 Episode ep = new Episode() { PartitionKey = string.Empty };
                 foreach (var e in eplist)
                 {
@@ -83,18 +88,21 @@ namespace rssnews
             }
         }
 
-        private static async Task<IEnumerable<Episode>> ReadRss(string uri, ILogger log)
+        private static async Task<IEnumerable<Episode>> ReadRss(Station station, ILogger log)
         {
+            string uri = station.Address;
             log.LogInformation($"ReadRss {uri}");
             var content = await client.GetAsync(uri);
 
             var doc = XDocument.Load(await content.Content.ReadAsStreamAsync());
-            return doc.XPathSelectElements("//enclosure").Select(e => new Episode()
+
+            return doc.XPathSelectElements("//item").Select(e => new Episode()
             {
-                PartitionKey = MD5(e.Attribute("url").Value),
+                PartitionKey = MD5(e.Element("enclosure").Attribute("url").Value),
                 RowKey = string.Empty,
                 Played = false,
-                Address = e.Attribute("url").Value
+                PublishDate = DateTime.Parse(e.Element("pubDate").Value),
+                Address = e.Element("enclosure").Attribute("url").Value
             });
         }
 

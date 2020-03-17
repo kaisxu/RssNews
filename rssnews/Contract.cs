@@ -15,5 +15,6 @@ namespace rssnews
     {
         public string Address { get; set; }
         public bool Played { get; set; }
+        public DateTime PublishDate { get; set; }
     }
 }
