@@ -95,15 +95,7 @@ namespace rssnews
             var content = await client.GetAsync(uri);
 
             var doc = XDocument.Load(await content.Content.ReadAsStreamAsync());
-
-            return doc.XPathSelectElements("//item").Select(e => new Episode()
-            {
-                PartitionKey = MD5(e.Element("enclosure").Attribute("url").Value),
-                RowKey = string.Empty,
-                Played = false,
-                PublishDate = DateTime.Parse(e.Element("pubDate").Value),
-                Address = e.Element("enclosure").Attribute("url").Value
-            });
+            return Helpers.ParseEpisodes(doc);
         }
 
         private static async Task Download(Episode eps, CloudBlockBlob blob, ILogger log)
@@ -111,23 +103,6 @@ namespace rssnews
             log.LogInformation($"Download {eps.Address}");
             var content = await client.GetAsync(eps.Address);
             await blob.UploadFromStreamAsync(await content.Content.ReadAsStreamAsync());
-        }
-
-        private static string MD5(string str)
-        {
-            using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
-            {
-                byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(str);
-                byte[] hashBytes = md5.ComputeHash(inputBytes);
-
-                // Convert the byte array to hexadecimal string
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < hashBytes.Length; i++)
-                {
-                    sb.Append(hashBytes[i].ToString("X2"));
-                }
-                return sb.ToString();
-            }
         }
     }
 }
