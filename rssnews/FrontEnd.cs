@@ -38,6 +38,7 @@ namespace rssnews
 
             try
             {
+                await queue.AddMessageAsync(new CloudQueueMessage(""));
                 var ep = episodeList.ExecuteQuerySegmentedAsync(new TableQuery<Episode>(), null)
                     .GetAwaiter().GetResult()
                     .OrderBy(e => e.Timestamp).Last();
@@ -45,7 +46,6 @@ namespace rssnews
                 var uri = container.GetBlockBlobReference(ep.PartitionKey).Uri;
 
                 await episodeList.ExecuteAsync(TableOperation.InsertOrReplace(ep));
-                await queue.AddMessageAsync(new CloudQueueMessage(""));
 
                 var response = new HttpResponseMessage(HttpStatusCode.OK);
                 response.Content = new StringContent(string.Format(ResponseTemplate, uri));

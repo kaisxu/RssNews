@@ -70,7 +70,7 @@ namespace rssnews
                 // remove old data
                 var op = new TableBatchOperation();
                 var eps = (await episodeList.ExecuteQuerySegmentedAsync(new TableQuery<Episode>(), null))
-                    .Where(e => e.Timestamp < DateTime.Now - TimeSpan.FromDays(7));
+                    .Where(e => e.Timestamp < DateTime.Now - TimeSpan.FromDays(3));
                 foreach (var e in eps)
                 {
                     await container.GetBlockBlobReference(e.PartitionKey).DeleteAsync();
