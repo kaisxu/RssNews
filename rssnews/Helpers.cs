@@ -20,7 +20,8 @@ namespace rssnews
                 RowKey = string.Empty,
                 Played = false,
                 PublishDate = DateTime.Parse(e.Element("pubDate").Value),
-                Address = e.Element("enclosure").Attribute("url").Value
+                Address = e.Element("enclosure").Attribute("url").Value,
+                Title = e.Element("title").Value
             });
         }
 

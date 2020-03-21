@@ -87,6 +87,7 @@ Learn more about your ad choices. Visit megaphone.fm/adchoices</itunes:summary>
             Assert.AreEqual("https://traffic.megaphone.fm/WSJ4677319017.mp3", ep1.Address);
             Assert.AreEqual(new DateTime(2020, 3, 17, 7, 0, 0, DateTimeKind.Utc), ep1.PublishDate.ToUniversalTime());
             Assert.AreEqual(false, ep1.Played);
+            Assert.AreEqual("Working From Home: Coronavirus Edition", ep1.Title);
             Assert.AreNotEqual(ep1.PartitionKey, ep2.PartitionKey);
         }
     }
