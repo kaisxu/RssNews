@@ -62,30 +62,28 @@ namespace rssnews
                     return;
                 }
 
+                log.LogInformation($"PartitionKey {ep.PartitionKey}");
+
                 var blob = container.GetBlockBlobReference(ep.PartitionKey);
                 await Download(ep, blob, log);
                 TableOperation tableOperation = TableOperation.Insert(ep);
                 await episodeList.ExecuteAsync(tableOperation);
 
                 // remove old data
-                var op = new TableBatchOperation();
                 var eps = (await episodeList.ExecuteQuerySegmentedAsync(new TableQuery<Episode>(), null))
-                    .Where(e => 
+                    .Where(e =>
                         (e.Timestamp < (DateTime.Now - TimeSpan.FromDays(3)) && e.Played)
                         || (e.Timestamp < (DateTime.Now - TimeSpan.FromDays(15))));
                 foreach (var e in eps)
                 {
-                    await container.GetBlockBlobReference(e.PartitionKey).DeleteAsync();
-                    op.Add(TableOperation.Delete(e));
-                }
-                if (op.Count() > 0)
-                {
-                    await episodeList.ExecuteBatchAsync(op);
+                    log.LogInformation($"Remove {e.PartitionKey}");
+                    await container.GetBlockBlobReference(e.PartitionKey).DeleteIfExistsAsync();
+                    await episodeList.ExecuteAsync(TableOperation.Delete(e));
                 }
             }
             catch (Exception e)
             {
-                log.LogError(e, "FeedService failed:");
+                log.LogError(e, "FeedService failed");
                 throw;
             }
         }
@@ -105,6 +103,7 @@ namespace rssnews
             log.LogInformation($"Download {eps.Address}");
             var content = await client.GetAsync(eps.Address);
             await blob.UploadFromStreamAsync(await content.Content.ReadAsStreamAsync());
+            log.LogInformation($"Download {eps.Address} success");
         }
     }
 }
