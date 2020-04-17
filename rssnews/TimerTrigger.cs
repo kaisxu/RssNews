@@ -10,7 +10,7 @@ namespace rssnews
     public static class TimerTrigger
     {
         [FunctionName("TimerTrigger")]
-        public static async Task Run([TimerTrigger("0 10,22 * * * *")]TimerInfo myTimer,
+        public static async Task Run([TimerTrigger("0 0 10,22 * * *")]TimerInfo myTimer,
             [Queue("fetch", Connection = "AzureWebJobsStorage")]CloudQueue queue,
             ILogger log)
         {
