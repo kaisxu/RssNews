@@ -25,9 +25,12 @@ namespace rssnews
 
         private static readonly Station[] stations =
         {
-            new Station(){ Name = "WSJ", Address="https://video-api.wsj.com/podcast/rss/wsj/the-journal"},
-
-            new Station(){ Name = "WSJ Tech", Address="https://video-api.wsj.com/podcast/rss/wsj/tech-news-briefing"}
+            // uri can be get from itune
+            new Station(){ Name = "WSJ Journal", Address="https://video-api.wsj.com/podcast/rss/wsj/the-journal"},
+            new Station(){ Name = "WSJ Business", Address="https://video-api.wsj.com/podcast/rss/wsj/whats-news"},
+            new Station(){ Name = "WSJ Opinion", Address="https://video-api.wsj.com/podcast/rss/wsj/opinion-potomac-watch"},
+            new Station(){ Name = "WSJ Future", Address="https://video-api.wsj.com/podcast/rss/wsj/wsj-the-future-of-everything"},
+            new Station(){ Name = "Morgan Stanley Ideas", Address="https://rss.art19.com/morgan-stanley-ideas-podcast"}
         };
 
         [FunctionName("FeedService")]
@@ -95,7 +98,11 @@ namespace rssnews
             var content = await client.GetAsync(uri);
 
             var doc = XDocument.Load(await content.Content.ReadAsStreamAsync());
-            return Helpers.ParseEpisodes(doc);
+            var res = Helpers.ParseEpisodes(doc);
+            var sample = res.First();
+            log.LogInformation($"Sampe for {station.Name}, Uri: {sample.Address}, Publish Data: {sample.PublishDate}, PK: {sample.PartitionKey}");
+
+            return res;
         }
 
         private static async Task Download(Episode eps, CloudBlockBlob blob, ILogger log)
