@@ -12,7 +12,7 @@ namespace rssnews
 {
     internal static class Helpers
     {
-        public static IEnumerable<Episode> ParseEpisodes(XDocument document)
+        public static IEnumerable<Episode> ParseEpisodes(XDocument document, Station station)
         {
             return document.XPathSelectElements("//item").Select(e => new Episode()
             {
@@ -21,7 +21,9 @@ namespace rssnews
                 Played = false,
                 PublishDate = DateTime.Parse(e.Element("pubDate").Value),
                 Address = e.Element("enclosure").Attribute("url").Value,
-                Title = e.Element("title").Value
+                Title = e.Element("title").Value,
+                Description = e.Element("description").Value,
+                StationName = station.Name
             });
         }
 

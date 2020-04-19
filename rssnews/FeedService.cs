@@ -98,7 +98,7 @@ namespace rssnews
             var content = await client.GetAsync(uri);
 
             var doc = XDocument.Load(await content.Content.ReadAsStreamAsync());
-            var res = Helpers.ParseEpisodes(doc);
+            var res = Helpers.ParseEpisodes(doc, station);
             var sample = res.First();
             log.LogInformation($"Sampe for {station.Name}, Uri: {sample.Address}, Publish Data: {sample.PublishDate}, PK: {sample.PartitionKey}");
 
