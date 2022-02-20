@@ -27,10 +27,10 @@ namespace rssnews
         {
             // uri can be get from itune
             new Station(){ Name = "WSJ Journal", Address="https://video-api.wsj.com/podcast/rss/wsj/the-journal"},
-            new Station(){ Name = "WSJ Business", Address="https://video-api.wsj.com/podcast/rss/wsj/whats-news"},
-            new Station(){ Name = "WSJ Opinion", Address="https://video-api.wsj.com/podcast/rss/wsj/opinion-potomac-watch"},
-            new Station(){ Name = "WSJ Future", Address="https://video-api.wsj.com/podcast/rss/wsj/wsj-the-future-of-everything"},
-            new Station(){ Name = "Morgan Stanley Ideas", Address="https://rss.art19.com/morgan-stanley-ideas-podcast"}
+            // new Station(){ Name = "WSJ Business", Address="https://video-api.wsj.com/podcast/rss/wsj/whats-news"},
+            // new Station(){ Name = "WSJ Opinion", Address="https://video-api.wsj.com/podcast/rss/wsj/opinion-potomac-watch"},
+            // new Station(){ Name = "WSJ Future", Address="https://video-api.wsj.com/podcast/rss/wsj/wsj-the-future-of-everything"},
+            // new Station(){ Name = "Morgan Stanley Ideas", Address="https://rss.art19.com/morgan-stanley-ideas-podcast"}
         };
 
         [FunctionName("FeedService")]
@@ -75,8 +75,8 @@ namespace rssnews
                 // remove old data
                 var eps = (await episodeList.ExecuteQuerySegmentedAsync(new TableQuery<Episode>(), null))
                     .Where(e =>
-                        (e.Timestamp < (DateTime.Now - TimeSpan.FromDays(3)) && e.Played)
-                        || (e.Timestamp < (DateTime.Now - TimeSpan.FromDays(15))));
+                        (e.Timestamp < (DateTime.Now - TimeSpan.FromDays(1)) && e.Played)
+                        || (e.Timestamp < (DateTime.Now - TimeSpan.FromDays(3))));
                 foreach (var e in eps)
                 {
                     log.LogInformation($"Remove {e.PartitionKey}");
